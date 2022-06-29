@@ -1,0 +1,698 @@
+import 'package:date_time_picker/date_time_picker.dart';
+import 'package:ensemble_manager/app/data/provider/alert_provider/alert_provider.dart';
+import 'package:ensemble_manager/app/data/provider/alert_provider/i_alert_provider.dart';
+import 'package:ensemble_manager/app/data/provider/assets_manage_provider/assets_manage_provider.dart';
+import 'package:ensemble_manager/app/data/provider/assets_manage_provider/i_assets_manage_provider.dart';
+import 'package:ensemble_manager/app/data/provider/deploy_provider/deploy_provider.dart';
+import 'package:ensemble_manager/app/data/provider/deploy_provider/i_deploy_provider.dart';
+import 'package:ensemble_manager/app/data/provider/home_provider/home_provider.dart';
+import 'package:ensemble_manager/app/data/provider/home_provider/i_home_provider.dart';
+import 'package:ensemble_manager/app/data/provider/inward_provider/i_inward_provider.dart';
+import 'package:ensemble_manager/app/data/provider/inward_provider/inward_provider.dart';
+import 'package:ensemble_manager/app/data/provider/login_provider/i_login_provider.dart';
+import 'package:ensemble_manager/app/data/provider/login_provider/login_provider.dart';
+import 'package:ensemble_manager/app/data/provider/renew_provider/i_renew_provider.dart';
+import 'package:ensemble_manager/app/data/provider/renew_provider/renew_provider.dart';
+import 'package:ensemble_manager/app/data/provider/search_provider/i_search_provider.dart';
+import 'package:ensemble_manager/app/data/provider/search_provider/search_provider.dart';
+import 'package:ensemble_manager/app/data/repository/alert/alert_repository.dart';
+import 'package:ensemble_manager/app/data/repository/alert/i_alert_repository.dart';
+import 'package:ensemble_manager/app/data/repository/assets_manage/assets_manage_repository.dart';
+import 'package:ensemble_manager/app/data/repository/assets_manage/i_assets_manage_repository.dart';
+import 'package:ensemble_manager/app/data/repository/deploy/deploy_repository.dart';
+import 'package:ensemble_manager/app/data/repository/deploy/i_deploy_repository.dart';
+import 'package:ensemble_manager/app/data/repository/home/home_repository.dart';
+import 'package:ensemble_manager/app/data/repository/home/i_home_repository.dart';
+import 'package:ensemble_manager/app/data/repository/inward/i_inward_repository.dart';
+import 'package:ensemble_manager/app/data/repository/inward/inward_repository.dart';
+import 'package:ensemble_manager/app/data/repository/login/i_login_repository.dart';
+import 'package:ensemble_manager/app/data/repository/login/login_repository.dart';
+import 'package:ensemble_manager/app/data/repository/renew/i_renew_repository.dart';
+import 'package:ensemble_manager/app/data/repository/renew/renew_repository.dart';
+import 'package:ensemble_manager/app/data/repository/search/i_search_repository.dart';
+import 'package:ensemble_manager/app/data/repository/search/search_repository.dart';
+import 'package:ensemble_manager/app/data/service/db_service/i_local_repository.dart';
+import 'package:ensemble_manager/app/data/service/db_service/local_repository.dart';
+import 'package:ensemble_manager/app/module/alerts/controllers/alert_controller.dart';
+import 'package:ensemble_manager/app/module/alerts/views/alerts_screen.dart';
+import 'package:ensemble_manager/app/module/deploy/controllers/deploy_controller.dart';
+import 'package:ensemble_manager/app/module/deploy/views/deploy_screen.dart';
+import 'package:ensemble_manager/app/module/home/controllers/home_controller.dart';
+import 'package:ensemble_manager/app/module/home/views/home_screen.dart';
+import 'package:ensemble_manager/app/module/inward/controllers/inward_controller.dart';
+import 'package:ensemble_manager/app/module/inward/views/inward_screen.dart';
+import 'package:ensemble_manager/app/module/login/controllers/login_screen_controller.dart';
+import 'package:ensemble_manager/app/module/manage_assets/controllers/transfer_assets_controller.dart';
+import 'package:ensemble_manager/app/module/manage_assets/views/transfer_assets_screen.dart';
+import 'package:ensemble_manager/app/module/renew/controllers/renew_controller.dart';
+import 'package:ensemble_manager/app/module/renew/views/renew_screen.dart';
+import 'package:ensemble_manager/app/module/search/controllers/search_controller.dart';
+import 'package:ensemble_manager/app/module/search/views/search_screen.dart';
+import 'package:ensemble_manager/app/routes/app_pages.dart';
+import 'package:ensemble_manager/app/routes/app_routes.dart';
+import 'package:ensemble_manager/main.dart' as app;
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+import 'package:integration_test/integration_test.dart';
+
+void main() {
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  group('Login test ', () {
+    _loginTest();
+  });
+  group('Home test ', () {
+    _loginTest();
+    _homeTest();
+  });
+  group('Search test ', () {
+    _loginTest();
+    _searchTest();
+  });
+  group('Alert test', () {
+    _loginTest();
+    _alertTest();
+  });
+  group('Deploy test', () {
+    _loginTest();
+    _deploy();
+  });
+  group('Manage Assets test', () {
+    _loginTest();
+    _assetsTest();
+  });
+  group('Inward test', () {
+    _loginTest();
+    _inwardTest();
+  });
+  group('renew test', () {
+    _loginTest();
+    _renewTest();
+  });
+}
+
+void _loginTest() {
+  Get.lazyPut<ILocalRepository>(
+    () => LocalRepository(),
+  );
+
+  Get.lazyPut<ILoginRepository>(
+      () => LoginRepository(iLoginProvider: Get.find<ILoginProvider>()));
+
+  Get.lazyPut<ILoginProvider>(() => LoginProvider());
+  Get.lazyPut<LoginScreenController>(
+    () => LoginScreenController(
+      iLocalRepository: Get.find<ILocalRepository>(),
+      iLoginRepository: Get.find<ILoginRepository>(),
+    ),
+  );
+
+  testWidgets('Login integration test', (WidgetTester tester) async {
+    await tester.pumpWidget(const app.MyApp());
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    expect(find.byKey(const Key("usernameKey")), findsOneWidget);
+    await tester.enterText(find.byKey(const Key("usernameKey")), "admin");
+    expect(find.byKey(const Key("passwordKey")), findsOneWidget);
+    await tester.enterText(find.byKey(const Key("passwordKey")), "Admin@12");
+    await tester.ensureVisible(find.byKey(const Key("buttonKey")));
+    final materialButtonFinder = find.byKey(const Key("buttonKey"));
+    await tester.tap(materialButtonFinder);
+    await tester.pumpAndSettle(const Duration(seconds: 8));
+    expect(Get.currentRoute, AppRoutes.homeScreen);
+    expect(find.text('Home'), findsOneWidget);
+  });
+  tearDownAll(() {
+    debugPrint('Login intergration test completed');
+  });
+}
+
+void _homeTest() {
+  testWidgets('Home integration test', (tester) async {
+    Get.lazyPut<HomeController>(
+      () => HomeController(
+        iLocalRepository: Get.find<ILocalRepository>(),
+        iHomeRepository: Get.find<IHomeRepository>(),
+      ),
+    );
+    Get.lazyPut<ILocalRepository>(
+      () => LocalRepository(),
+    );
+    Get.lazyPut<IHomeRepository>(
+        () => HomeRepository(iHomeProvider: Get.find<IHomeProvider>()));
+    Get.lazyPut<IHomeProvider>(() => HomeProvider());
+    await tester.pumpWidget(GetMaterialApp(
+      getPages: AppPages.pages,
+      home: const HomeScreen(),
+    ));
+
+    await tester.pumpAndSettle(const Duration(seconds: 8));
+    expect(find.text('Home'), findsOneWidget);
+    await tester.tap(find.text('Inward(GRN)'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(Get.currentRoute, AppRoutes.inwardScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.pageBack();
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Home'), findsOneWidget);
+    await tester.tap(find.text('Deploy(Issue)'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(Get.currentRoute, AppRoutes.deployScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.pageBack();
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Home'), findsOneWidget);
+    await tester.tap(find.text('Search'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(Get.currentRoute, AppRoutes.searchScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.pageBack();
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Home'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.edit));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(Get.currentRoute, AppRoutes.transferAssetsScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.pageBack();
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Home'), findsOneWidget);
+    await tester.tap(find.text('Alerts'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(Get.currentRoute, AppRoutes.alertScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.pageBack();
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Home'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.logout));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(Get.currentRoute, AppRoutes.renewScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.pageBack();
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final buttonfinder = find.byIcon(Icons.power_settings_new_rounded);
+    await tester.tap(buttonfinder);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Ensemble'), findsOneWidget);
+    await tester.tap(find.text('Yes'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(Get.currentRoute, AppRoutes.loginScreen);
+  });
+  tearDownAll(() {
+    debugPrint('Home intergration test completed');
+  });
+}
+
+void _searchTest() {
+  testWidgets('Search intergration test', (tester) async {
+    Get.lazyPut<ILocalRepository>(
+      () => LocalRepository(),
+    );
+
+    Get.lazyPut<ISearchProvider>(
+      () => SearchProvider(),
+    );
+    Get.lazyPut<ISearchRepository>(
+      () => SearchRepository(
+        iSearchProvider: Get.find<ISearchProvider>(),
+      ),
+    );
+
+    Get.lazyPut<SearchController>(
+      () => SearchController(
+        iSearchRepository: Get.find<ISearchRepository>(),
+        iLocalRepository: Get.find<ILocalRepository>(),
+      ),
+    );
+    await tester.pumpWidget(GetMaterialApp(
+      getPages: AppPages.pages,
+      home: const SearchScreen(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final dropdown = find.byKey(const ValueKey('searchOptionKey'));
+    expect(dropdown, findsOneWidget);
+    await tester.tap(dropdown);
+    await tester.pumpAndSettle();
+    final dropdownItem = find.text('User').last;
+    await tester.tap(dropdownItem);
+    await tester.pumpAndSettle();
+    final textFieldfinder = find.byKey(const ValueKey("textFieldKey"));
+    await tester.tap(textFieldfinder);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('listviewKey')), findsOneWidget);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Runi'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.text('GET DETAILS'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    final dropdown1 = find.byKey(const ValueKey('searchOptionKey'));
+    expect(dropdown1, findsOneWidget);
+    await tester.tap(dropdown);
+    await tester.pumpAndSettle();
+    final dropdownItem1 = find.text('WorkSpace ID').last;
+    await tester.tap(dropdownItem1);
+    await tester.pumpAndSettle();
+    final textFieldfinder1 = find.byKey(const ValueKey("textFieldKey"));
+    await tester.tap(textFieldfinder1);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('EIT STR KOL 01'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.text('GET DETAILS'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    final dropdown2 = find.byKey(const ValueKey('searchOptionKey'));
+    expect(dropdown2, findsOneWidget);
+    await tester.tap(dropdown);
+    await tester.pumpAndSettle();
+    final dropdownItem2 = find.text('Serial Number').last;
+    await tester.tap(dropdownItem2);
+    await tester.pumpAndSettle();
+    final textFieldfinder2 = find.byKey(const ValueKey("textFieldKey"));
+    await tester.tap(textFieldfinder2);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.search));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.byKey(const Key('AppBarSearchFieldKey')), findsOneWidget);
+    await tester.enterText(
+        find.byKey(const Key('AppBarSearchFieldKey')), '5cd7457m84');
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tapAt(const Offset(170.8, 114.3));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.text('GET DETAILS'));
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+  });
+  tearDownAll(() {
+    debugPrint('Search intergration test completed');
+  });
+}
+
+void _alertTest() {
+  Get.put<ILocalRepository>(
+    LocalRepository(),
+  );
+
+  Get.lazyPut<IAlertRepository>(
+      () => AlertRepository(iAlertProvider: Get.find<IAlertProvider>()));
+  Get.lazyPut<IAlertProvider>(() => AlertProvider());
+
+  Get.lazyPut<AlertController>(
+    () => AlertController(
+      iLocalRepository: Get.find<ILocalRepository>(),
+      iAlertRepository: Get.find<IAlertRepository>(),
+    ),
+  );
+  testWidgets('Alert Integration test ', (tester) async {
+    await tester.pumpWidget(const GetMaterialApp(
+      home: AlertScreen(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Alerts'), findsOneWidget);
+  });
+}
+
+void _deploy() {
+  Get.lazyPut<ILocalRepository>(
+    () => LocalRepository(),
+  );
+
+  Get.lazyPut<IDeployProvider>(
+    () => DeployProvider(),
+  );
+  Get.lazyPut<IDeployRepository>(
+    () => DeployRepository(
+      iDeployProvider: Get.find<IDeployProvider>(),
+    ),
+  );
+
+  Get.lazyPut<DeployScreenController>(
+    () => DeployScreenController(
+      iDeployRepository: Get.find<IDeployRepository>(),
+      iLocalRepository: Get.find<ILocalRepository>(),
+    ),
+  );
+  testWidgets("Deploy integration test", (tester) async {
+    await tester.pumpWidget(GetMaterialApp(
+      getPages: AppPages.pages,
+      home: const DeployScreen(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(find.text('Deploy'), findsOneWidget);
+
+    final dropdownFinder = find.byKey(const Key("selectDeplyTypeKey"));
+    expect(dropdownFinder, findsOneWidget);
+    await tester.tap(dropdownFinder);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    final dropdownItem = find.text('Deploy to store').last;
+    await tester.tap(dropdownItem);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tapAt(const Offset(88.0, 228.0));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+    await tester.tapAt(const Offset(83.7, 235.3));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    final textField = find.byKey(const Key('WorkSpaceTypeIdKey'));
+    await tester.tap(textField);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    expect(find.text('Stores'), findsOneWidget);
+    expect(find.byKey(const Key('StoreScreenlistViewKey')), findsOneWidget);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('MPG WRK BAN 01'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.enterText(
+        find.byKey(const ValueKey("serialNumberKey")), 'ABC67');
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.byKey(const Key('EyeButtonKey')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('qrcodeImageKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tapAt(const Offset(196.6, 593.1));
+    await tester.pumpAndSettle(const Duration(seconds: 7));
+    await tester.tapAt(const Offset(196.6, 593.1));
+
+    await tester.tap(find.byKey(const Key('qrProductCodeImageKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 9));
+
+    await tester.tap(find.byKey(const Key('qrLocationCodeImageKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 8));
+
+    await tester.drag(
+        find.byKey(const Key('deploylistViewKey')), const Offset(0, -300));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tap(find.byKey(const Key('radioButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.byKey(const Key('deployInventoryButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tap(find.text('OK'));
+
+    tearDownAll(() {
+      debugPrint('Deploy integration test completed');
+    });
+  });
+}
+
+void _assetsTest() {
+  Get.put<ILocalRepository>(
+    LocalRepository(),
+  );
+
+  Get.lazyPut<IAssetsManageProvider>(
+    () => AssetsManageProvider(),
+  );
+  Get.lazyPut<IAssetsManageRepository>(
+    () => AssetsManageRepository(
+      iAssetsManageProvider: Get.find<IAssetsManageProvider>(),
+    ),
+  );
+
+  Get.lazyPut<TransferAssetsController>(
+    () => TransferAssetsController(
+      iLocalRepository: Get.find<ILocalRepository>(),
+      iAssetsManageRepository: Get.find<IAssetsManageRepository>(),
+    ),
+  );
+
+  testWidgets('Assets Integration test', (tester) async {
+    await tester.pumpWidget(GetMaterialApp(
+      getPages: AppPages.pages,
+      home: const AssetsTransferScreen(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tapAt(const Offset(199.2, 395.0));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.transferAssetsScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    // await tester.tapAt(const Offset(205.7, 126.0));
+    await tester.tap(find.byKey(const Key('selectWorkSpaceTypeKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tapAt(const Offset(205.7, 208.0));
+    final dropdownItem = find.text('Workspace type').last;
+    await tester.tap(dropdownItem);
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+
+    final dropdownFinder1 = find.byKey(const Key('toWorkSpaceTypeKey'));
+    expect(dropdownFinder1, findsOneWidget);
+    await tester.tap(dropdownFinder1);
+    //  await tester.tapAt(const Offset(205.7, 208.0));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    final dropdownItem1 = find.text('STORE').last;
+    await tester.tap(dropdownItem1);
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.byKey(const Key('toWorkSpaceIdTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+
+    expect(Get.currentRoute, AppRoutes.storeScreenAm);
+    expect(find.byKey(const Key('storesListviewKey')), findsOneWidget);
+    await tester.pumpAndSettle();
+    final textfinder = find.text('MPG STR BAN 01').last;
+    await tester.tap(textfinder);
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    final dropdownFinder2 = find.byKey(const Key('statusDropDownKey'));
+    expect(dropdownFinder2, findsOneWidget);
+    await tester.tap(dropdownFinder2);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    final dropdownItem2 = find.text('In Store - Working').last;
+    await tester.tap(dropdownItem2);
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.enterText(
+        find.byKey(const Key('RemarkTextFormFieldKey')), 'sample remark');
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.enterText(
+        find.byKey(const Key('SerialNoTextformFieldKey')), 'ABC67');
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.byKey(const Key('AddIconButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.tap(find.text('TRANSFER'));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tap(find.text('OK'));
+
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    await tester.tap(find.byIcon(Icons.notifications));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+  });
+  tearDownAll(() {
+    debugPrint('Manage Assets integration test completed');
+  });
+}
+
+void _inwardTest() {
+  Get.lazyPut<ILocalRepository>(
+    () => LocalRepository(),
+  );
+  Get.lazyPut<IInwardProvider>(
+    () => InwardProvider(),
+  );
+  Get.lazyPut<IInwardRepository>(
+      () => InwardRepository(iInwardProvider: Get.find<IInwardProvider>()));
+  Get.lazyPut<InwardController>(
+    () => InwardController(
+      iLocalRepository: Get.find<ILocalRepository>(),
+      iInwardRepository: Get.find<IInwardRepository>(),
+    ),
+  );
+  testWidgets('Inward Integration test', (tester) async {
+    await tester.pumpWidget(GetMaterialApp(
+      getPages: AppPages.pages,
+      home: const InWardScreen(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    expect(find.text('Inward'), findsOneWidget);
+    final dropdownFinder = find.byKey(const Key('SelectsiteDropdown'));
+    expect(dropdownFinder, findsOneWidget);
+    await tester.tap(dropdownFinder);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    final dropdownItem = find.text('MAN Bangalore').last;
+    await tester.tap(dropdownItem);
+
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.byKey(const Key('PurchaseOrderTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+
+    expect(find.text('Purchase Orders'), findsOneWidget);
+    expect(find.byKey(const Key('PurchaseOrderListviewKey')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final textfinder = find.text('PO1001').last;
+    await tester.tap(textfinder);
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    final dropdownFinder2 = find.byKey(const Key('SelectItemDropDownKey'));
+    expect(dropdownFinder2, findsOneWidget);
+    await tester.tap(dropdownFinder2);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    final dropdownItem2 = find.text('6KVA UPS Eaton 9E').last;
+    await tester.tap(dropdownItem2);
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.drag(
+        find.byKey(const Key('InwardListViewKey')), const Offset(0, -300));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.byKey(const Key('SelectGRNNumberTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('GRN Number'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('floatingButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.drag(
+        find.byKey(const Key('InwardListViewKey')), const Offset(0, -500));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.byType(DateTimePicker));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.text('16'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.tap(find.text('OK'));
+
+    await tester.enterText(
+        find.byKey(const ValueKey("InvoiceNumberTextFormKey")), '12345');
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.tap(find.byKey(const Key("StoreIdTextForFieldKey")));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(find.text('Stores'), findsOneWidget);
+    final list = find.text('MPG STR BAN 01').last;
+    await tester.tap(list);
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.drag(
+        find.byKey(const Key('InwardListViewKey')), const Offset(0, -500));
+    await tester.tap(find.byKey(const Key('QRcodeImageKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 13));
+    await tester.tap(find.byIcon(Icons.add_photo_alternate_outlined));
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    await tester.tap(find.byKey(const Key('ProductLoactionImageKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+
+    await tester.enterText(
+        find.byKey(const Key('OEMserialNOTexFormFIeldKey')), 'ABC67');
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.byKey(const Key('OEMserialNOIconButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tap(find.byKey(const Key('AddInventoryElevatdButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.text('OK'));
+  });
+}
+
+void _renewTest() {
+  Get.put<ILocalRepository>(
+    LocalRepository(),
+  );
+
+  Get.lazyPut<IRenewProvider>(
+    () => RenewProvider(),
+  );
+  Get.lazyPut<IRenewRepository>(
+    () => RenewRepository(
+      iRenewProvider: Get.find<IRenewProvider>(),
+    ),
+  );
+  Get.lazyPut<RenewController>(
+    () => RenewController(
+      iLocalRepository: Get.find<ILocalRepository>(),
+      iRenewRepository: Get.find<IRenewRepository>(),
+    ),
+  );
+  testWidgets('Renew Integration test', (tester) async {
+    await tester.pumpWidget(GetMaterialApp(
+      getPages: AppPages.pages,
+      home: const RenewScreen(),
+    ));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.tap(find.byKey(const Key('textfo')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // expect(find.text('Sited'), findsOneWidget);
+    expect(Get.currentRoute, AppRoutes.allSiteScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(find.byKey(const Key('siteScreenListView')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.text('MAN Bangalore'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byKey(const Key('workspacetypeTextFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.allWorkSpaceTypeScreen);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(find.byKey(const Key('WorkSpaceTypeListViewKey')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.text('STORE'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byKey(const Key('workspaceIDTextFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.allWorkSpaceIdScreenRenew);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(find.byKey(const Key('workSpaceIdListView')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.text('MPG STR BAN 01'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byKey(const Key('UserTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.allUserScreenRenew);
+    expect(find.byKey(const Key('AllUserListviwKey')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    // final usernamefinder = find.text('Rajesh').last;
+    // await tester.tap(usernamefinder);
+    await tester.tapAt(const Offset(170.8, 114.3));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byKey(const Key('SelectCategoryTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.allCatagoriesScreen);
+    expect(find.byKey(const Key('allCategoryListViewKey')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.text('Battery'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byKey(const Key('SelectMakeTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.allMakeScreenRenew);
+    expect(find.byKey(const Key('allMakesListviewKey')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.text('Compatible'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byKey(const Key('SelectModelTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.allModelScreenRenew);
+    expect(find.byKey(const Key('ModelListViewKey')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.text('Lenovo B40 70'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byKey(const Key('ExistingSerialNoTextFormFieldKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    expect(Get.currentRoute, AppRoutes.allSerialNosScreenRenew);
+    expect(find.byKey(const Key('AllSerialNoListViewKey')), findsOneWidget);
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tapAt(const Offset(170.8, 114.3));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+
+    await tester.tap(find.byIcon(Icons.qr_code));
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+    // await tester.enterText(
+    //     find.byKey(const Key('NewSerialNumberTextFormFieldKey')), 'ABC67');
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.byKey(const Key('RadioButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.tap(find.byKey(const Key('SubmitElevatedButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 6));
+    final textfinder = find.text('OK');
+    await tester.tap(textfinder);
+    await tester.pumpAndSettle(const Duration(seconds: 4));
+  });
+}
