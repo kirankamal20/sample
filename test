@@ -110,11 +110,16 @@ void _loginTest() {
 
   testWidgets('Login integration test', (WidgetTester tester) async {
     await tester.pumpWidget(const app.MyApp());
+    //User name field
     await tester.pumpAndSettle(const Duration(seconds: 10));
     expect(find.byKey(const Key("usernameKey")), findsOneWidget);
     await tester.enterText(find.byKey(const Key("usernameKey")), "admin");
+    //Password Field
     expect(find.byKey(const Key("passwordKey")), findsOneWidget);
     await tester.enterText(find.byKey(const Key("passwordKey")), "Admin@12");
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    //Tapping button
     await tester.ensureVisible(find.byKey(const Key("buttonKey")));
     final materialButtonFinder = find.byKey(const Key("buttonKey"));
     await tester.tap(materialButtonFinder);
@@ -145,7 +150,7 @@ void _homeTest() {
       getPages: AppPages.pages,
       home: const HomeScreen(),
     ));
-
+    //Inward screen test
     await tester.pumpAndSettle(const Duration(seconds: 8));
     expect(find.text('Home'), findsOneWidget);
     await tester.tap(find.text('Inward(GRN)'));
@@ -153,7 +158,7 @@ void _homeTest() {
     expect(Get.currentRoute, AppRoutes.inwardScreen);
     await tester.pumpAndSettle(const Duration(seconds: 1));
     await tester.pageBack();
-
+    //Deploy screen test
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('Home'), findsOneWidget);
     await tester.tap(find.text('Deploy(Issue)'));
@@ -161,7 +166,7 @@ void _homeTest() {
     expect(Get.currentRoute, AppRoutes.deployScreen);
     await tester.pumpAndSettle(const Duration(seconds: 1));
     await tester.pageBack();
-
+    //Search screen test
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('Home'), findsOneWidget);
     await tester.tap(find.text('Search'));
@@ -169,15 +174,17 @@ void _homeTest() {
     expect(Get.currentRoute, AppRoutes.searchScreen);
     await tester.pumpAndSettle(const Duration(seconds: 1));
     await tester.pageBack();
-
+    //Manage assest screen test
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('Home'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.edit));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(Get.currentRoute, AppRoutes.transferAssetsScreen);
     await tester.pumpAndSettle(const Duration(seconds: 1));
+    await tester.tapAt(const Offset(207.2, 398.8));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.pageBack();
-
+    //Alert screen test
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('Home'), findsOneWidget);
     await tester.tap(find.text('Alerts'));
@@ -185,7 +192,7 @@ void _homeTest() {
     expect(Get.currentRoute, AppRoutes.alertScreen);
     await tester.pumpAndSettle(const Duration(seconds: 1));
     await tester.pageBack();
-
+    //Renew screen test
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.text('Home'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.logout));
@@ -193,7 +200,7 @@ void _homeTest() {
     expect(Get.currentRoute, AppRoutes.renewScreen);
     await tester.pumpAndSettle(const Duration(seconds: 1));
     await tester.pageBack();
-
+    //Logout test
     await tester.pumpAndSettle(const Duration(seconds: 2));
     final buttonfinder = find.byIcon(Icons.power_settings_new_rounded);
     await tester.tap(buttonfinder);
@@ -285,6 +292,8 @@ void _searchTest() {
     expect(find.byKey(const Key('AppBarSearchFieldKey')), findsOneWidget);
     await tester.enterText(
         find.byKey(const Key('AppBarSearchFieldKey')), '5cd7457m84');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tapAt(const Offset(170.8, 114.3));
     await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -349,6 +358,7 @@ void _deploy() {
     await tester.pumpAndSettle(const Duration(seconds: 3));
     expect(find.text('Deploy'), findsOneWidget);
 
+    //Select Deploy Type Field
     final dropdownFinder = find.byKey(const Key("selectDeplyTypeKey"));
     expect(dropdownFinder, findsOneWidget);
     await tester.tap(dropdownFinder);
@@ -356,49 +366,61 @@ void _deploy() {
     final dropdownItem = find.text('Deploy to store').last;
     await tester.tap(dropdownItem);
     await tester.pumpAndSettle(const Duration(seconds: 4));
+
+    //Select Workspace Type Field
     await tester.tapAt(const Offset(88.0, 228.0));
     await tester.pumpAndSettle(const Duration(seconds: 5));
     await tester.tapAt(const Offset(83.7, 235.3));
     await tester.pumpAndSettle(const Duration(seconds: 4));
+
+    //Enter Workspace ID field
     final textField = find.byKey(const Key('WorkSpaceTypeIdKey'));
     await tester.tap(textField);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
+    //Store list view screen
     expect(find.text('Stores'), findsOneWidget);
     expect(find.byKey(const Key('StoreScreenlistViewKey')), findsOneWidget);
     await tester.pumpAndSettle();
     await tester.tap(find.text('MPG WRK BAN 01'));
     await tester.pumpAndSettle(const Duration(seconds: 3));
 
+    //OEM serialNumber Field
     await tester.enterText(
         find.byKey(const ValueKey("serialNumberKey")), 'ABC67');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 3));
     await tester.tap(find.byKey(const Key('EyeButtonKey')));
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    //camara container
+    await tester.drag(
+        find.byKey(const Key('deploylistViewKey')), const Offset(0, -500));
     await tester.tap(find.byKey(const Key('qrcodeImageKey')));
-    await tester.pumpAndSettle(const Duration(seconds: 4));
-    await tester.tapAt(const Offset(196.6, 593.1));
-    await tester.pumpAndSettle(const Duration(seconds: 7));
-    await tester.tapAt(const Offset(196.6, 593.1));
-
-    await tester.tap(find.byKey(const Key('qrProductCodeImageKey')));
-    await tester.pumpAndSettle(const Duration(seconds: 9));
-
+    await tester.pumpAndSettle(const Duration(seconds: 13));
+    await tester.tap(find.byIcon(Icons.add_photo_alternate_outlined));
+    await tester.pumpAndSettle(const Duration(seconds: 10));
     await tester.tap(find.byKey(const Key('qrLocationCodeImageKey')));
-    await tester.pumpAndSettle(const Duration(seconds: 8));
-
+    await tester.pumpAndSettle(const Duration(seconds: 10));
+    //scrolling list view
     await tester.drag(
         find.byKey(const Key('deploylistViewKey')), const Offset(0, -300));
     await tester.pumpAndSettle(const Duration(seconds: 4));
+
+    //RadioButton test
     await tester.tap(find.byKey(const Key('radioButtonKey')));
     await tester.pumpAndSettle(const Duration(seconds: 3));
-    await tester.tap(find.byKey(const Key('deployInventoryButtonKey')));
-    await tester.pumpAndSettle(const Duration(seconds: 4));
-    await tester.tap(find.text('OK'));
 
-    tearDownAll(() {
-      debugPrint('Deploy integration test completed');
-    });
+    //Deploy Inventory ElevatedButton
+    await tester.tap(find.byKey(const Key('deployInventoryButtonKey')));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await tester.tap(find.text('OK'));
+    // await tester.tapAt(const Offset(205.7, 403.2));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    expect(find.text('Deploy'), findsOneWidget);
+
+    // tearDownAll(() {
+    //   debugPrint('Deploy integration test completed');
+    // });
   });
 }
 
@@ -423,23 +445,28 @@ void _assetsTest() {
     ),
   );
 
-  testWidgets('Assets Integration test', (tester) async {
+  testWidgets('Manage Assets Integration test', (tester) async {
     await tester.pumpWidget(GetMaterialApp(
       getPages: AppPages.pages,
       home: const AssetsTransferScreen(),
     ));
+    await tester.pumpAndSettle(const Duration(seconds: 5));
+    await tester.tapAt(const Offset(207.2, 398.8));
     await tester.pumpAndSettle(const Duration(seconds: 3));
     await tester.tapAt(const Offset(199.2, 395.0));
     await tester.pumpAndSettle(const Duration(seconds: 3));
-    expect(Get.currentRoute, AppRoutes.transferAssetsScreen);
+    expect(find.text('Assets Transfer'), findsOneWidget);
+    // expect(Get.currentRoute, AppRoutes.transferAssetsScreen);
+
     await tester.pumpAndSettle(const Duration(seconds: 3));
     // await tester.tapAt(const Offset(205.7, 126.0));
     await tester.tap(find.byKey(const Key('selectWorkSpaceTypeKey')));
     await tester.pumpAndSettle(const Duration(seconds: 3));
-    await tester.tapAt(const Offset(205.7, 208.0));
-    final dropdownItem = find.text('Workspace type').last;
-    await tester.tap(dropdownItem);
-    await tester.pumpAndSettle(const Duration(seconds: 5));
+    await tester.tapAt(const Offset(86.8, 117.7));
+    // final dropdownItem = find.text('Workspace type').last;
+
+    // await tester.tap(dropdownItem);
+    await tester.pumpAndSettle(const Duration(seconds: 3));
 
     final dropdownFinder1 = find.byKey(const Key('toWorkSpaceTypeKey'));
     expect(dropdownFinder1, findsOneWidget);
@@ -470,20 +497,27 @@ void _assetsTest() {
 
     await tester.enterText(
         find.byKey(const Key('RemarkTextFormFieldKey')), 'sample remark');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 2));
-
     await tester.enterText(
         find.byKey(const Key('SerialNoTextformFieldKey')), 'ABC67');
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    // await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('AddIconButtonKey')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(find.text('TRANSFER'));
+    // await tester.tap(find.text('TRANSFER'));
+    await tester
+        .ensureVisible(find.byKey(const Key('TransferElevatedButtonKey')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('TransferElevatedButtonKey')));
     await tester.pumpAndSettle(const Duration(seconds: 4));
     await tester.tap(find.text('OK'));
-
-    await tester.tap(find.text('Reset'));
     await tester.pumpAndSettle(const Duration(seconds: 2));
+    expect(find.text('Assets Transfer'), findsOneWidget);
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
 
     await tester.tap(find.byIcon(Icons.notifications));
     await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -560,6 +594,7 @@ void _inwardTest() {
 
     await tester.enterText(
         find.byKey(const ValueKey("InvoiceNumberTextFormKey")), '12345');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 1));
     await tester.tap(find.byKey(const Key("StoreIdTextForFieldKey")));
     await tester.pumpAndSettle(const Duration(seconds: 3));
@@ -578,12 +613,15 @@ void _inwardTest() {
 
     await tester.enterText(
         find.byKey(const Key('OEMserialNOTexFormFIeldKey')), 'ABC67');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 3));
     await tester.tap(find.byKey(const Key('OEMserialNOIconButtonKey')));
     await tester.pumpAndSettle(const Duration(seconds: 4));
     await tester.tap(find.byKey(const Key('AddInventoryElevatdButtonKey')));
-    await tester.pumpAndSettle(const Duration(seconds: 3));
-    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+    // expect(find.text('Item added successfully'), findsOneWidget);
+    expect(find.text('OK'), findsOneWidget);
+    // await tester.tap(find.text('OK'));
   });
 }
 
@@ -681,18 +719,18 @@ void _renewTest() {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tapAt(const Offset(170.8, 114.3));
     await tester.pumpAndSettle(const Duration(seconds: 3));
-
-    await tester.tap(find.byIcon(Icons.qr_code));
-    await tester.pumpAndSettle(const Duration(seconds: 4));
-    // await tester.enterText(
-    //     find.byKey(const Key('NewSerialNumberTextFormFieldKey')), 'ABC67');
+    //Qr code scanner testing
+    // await tester.tap(find.byIcon(Icons.qr_code));
+    // await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.enterText(
+        find.byKey(const Key('NewSerialNumberTextFormFieldKey')), 'ABC67');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 3));
     await tester.tap(find.byKey(const Key('RadioButtonKey')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
     await tester.tap(find.byKey(const Key('SubmitElevatedButtonKey')));
-    await tester.pumpAndSettle(const Duration(seconds: 6));
-    final textfinder = find.text('OK');
-    await tester.tap(textfinder);
-    await tester.pumpAndSettle(const Duration(seconds: 4));
+    await tester.pumpAndSettle(const Duration(seconds: 3));
+    // expect(find.text('Serial Number updated successfully'), findsOneWidget);
+    expect(find.text('OK'), findsOneWidget);
   });
 }
